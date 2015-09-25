@@ -7,7 +7,8 @@ using System;
 using DG.Tweening;
 
 public class controlObjeto : MonoBehaviour {
-
+	public enum Tipo { Normal, Piedra, Flubber };
+	public Tipo tipo;
 	public bool libre = false;
 	public int peso = 0;
 	private int pesoMax = 3;
@@ -15,19 +16,21 @@ public class controlObjeto : MonoBehaviour {
 	private Tween myTween;
 	
 	private BoxCollider2D collider;
-	private Vector3 s, c;
+	//private Vector3 s, c;
 	public LayerMask mask;
 	
 	void Start () {
 		collider = GetComponent<BoxCollider2D>();
 		transform.localRotation = Quaternion.AngleAxis((float)UnityEngine.Random.Range(-10, 10), new Vector3(0, 0, 1));
-		GetComponent<TapGesture>().Tapped += manejadorToque;
-		GetComponent<PanGesture>().Panned += manejadorArrastre;
-		GetComponent<PanGesture>().PanCompleted += arrastreCompletoManejador;
+		if (GetComponent<TapGesture>() != null)
+			GetComponent<TapGesture>().Tapped += manejadorToque;
+		if (GetComponent<PanGesture>() != null){
+			GetComponent<PanGesture>().Panned += manejadorArrastre;
+			GetComponent<PanGesture>().PanCompleted += arrastreCompletoManejador;
+		}
 		transform.DOMoveX(-20, 50, false).SetEase (Ease.Linear).SetLoops(0).OnComplete(completado);
-		GetComponent<Transformer2D>().enabled = false;
-		s = collider.size;
-		c = collider.center;
+		if (GetComponent<Transformer2D>() != null)
+			GetComponent<Transformer2D>().enabled = false;
 	}
 	
 	private void completado(){
@@ -64,34 +67,23 @@ public class controlObjeto : MonoBehaviour {
 	
 	public bool engordar(Transform otro){
 		controlObjeto cntObjeto = otro.GetComponent<controlObjeto>();
-		if (cntObjeto.peso < cntObjeto.pesoMax){
-			otro.localScale += new Vector3(1,1,1);
-			cntObjeto.peso++;
-			if (cntObjeto.peso == 1){
-				otro.GetComponent<BoxCollider2D>().enabled = false;
-				otro.GetComponent<TapGesture>().enabled = false;
-				otro.GetComponent<PanGesture>().enabled = false;
+		if (cntObjeto.tipo.Equals(Tipo.Flubber)){
+			if (cntObjeto.peso < cntObjeto.pesoMax){
+				otro.localScale += new Vector3(1,1,1);
+				cntObjeto.peso++;
+				if (cntObjeto.peso == 1){
+					otro.GetComponent<BoxCollider2D>().enabled = false;
+					if (otro.GetComponent<TapGesture>() != null)
+						otro.GetComponent<TapGesture>().enabled = false;
+					if (otro.GetComponent<PanGesture>() != null)
+						otro.GetComponent<PanGesture>().enabled = false;
+				}
+				return true;
 			}
-			return true;
+			return false;
 		}
 		return false;
 	}
-	
-	/*private GameObject comprobarSiEstaTocandoAotro(){
-		
-		Vector2 pos = transform.position;
-		for(int i = 0; i < 3; i++) {
-			float x = (pos.x + c.x - s.x/2) + (s.x/2 * i); // Left, centre and then rightmost point of collider
-			float y = pos.y + c.y + s.y/2 * -1 - 20;
-			Ray ray = new Ray(new Vector2(x,y), new Vector2(0, -100));
-			Debug.DrawRay(ray.origin, ray.direction);
-			
-			RaycastHit2D golpe = Physics2D.Raycast(ray.origin, Vector2.up, 100, mask); // Linecast mas preciso, mas lento, probar
-			if (golpe.collider != null)
-				return golpe.collider.gameObject;
-		}
-		return null;
-	}*/
 	
 	public Transform encontrarNodoMasCercano(Transform quien, string tipoNodo){
 		float nearestDistanceSqr = 10f;
@@ -109,7 +101,6 @@ public class controlObjeto : MonoBehaviour {
 			}
 		}
 		return nodoMasCercano;
-		//if ((otro.position - transform.position).sqrMagnitude  < 1){
 	}
 	
 	private void reanudar(){

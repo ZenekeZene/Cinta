@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class generarObjetos : MonoBehaviour {
 
-	public GameObject prefab_objeto, prefab_objeto_vacio;
+	public List<GameObject> objetos;
 	private Vector3 posIni;
 	
 	// Set up a list to keep track of targets
@@ -23,19 +23,15 @@ public class generarObjetos : MonoBehaviour {
 	}
 	
 	private void generar() {
-		int seDibujaObjeto = Random.Range(0, 3);
-		GameObject objeto;
-		if (seDibujaObjeto < 2)
-			objeto = Instantiate(prefab_objeto, transform.position, Quaternion.identity) as GameObject;
-		else
-			objeto = Instantiate(prefab_objeto_vacio, transform.position, Quaternion.identity) as GameObject;
+		int indexObjeto = Random.Range(0, objetos.Count);
+		GameObject objeto = Instantiate(objetos[indexObjeto], transform.position, Quaternion.identity) as GameObject;
 		Vector2 tam = objeto.GetComponent<SpriteRenderer>().sprite.bounds.size;
 		objeto.transform.position = new Vector3(posIni.x + (tam.x/2), transform.position.y, 0);;
 		objeto.transform.parent = transform;
 	}
 
-	// If a new object enters the trigger, add it to the list of targets
-	void OnTriggerEnter2D(Collider2D other){
+	private void OnTriggerEnter2D(Collider2D other){
+		// If a new object enters the trigger, add it to the list of targets
 		if (other.CompareTag("Objeto")) {
 			if (other.transform.IsChildOf(transform) == true){
 				GameObject go = other.gameObject;
@@ -45,8 +41,8 @@ public class generarObjetos : MonoBehaviour {
 		}
 	}
 	
-	// When an object exits the trigger, remove it from the list
-	void OnTriggerExit2D(Collider2D other){
+	private void OnTriggerExit2D(Collider2D other){
+		// When an object exits the trigger, remove it from the list
 		if (other.CompareTag("Objeto")) {
 			if (other.transform.IsChildOf(transform) == true){
 				GameObject go = other.gameObject;
