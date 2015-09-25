@@ -15,7 +15,6 @@ public class controlObjetos : MonoBehaviour {
 		pos = dibujarPrimerObjeto();
 		dibujarObjetos(pos);
 		velocidad = recogerVelocidad();
-		//InvokeRepeating("moverObjetos", 1f, 1f);
 	}	
 	
 	void Update () { 
@@ -32,19 +31,10 @@ public class controlObjetos : MonoBehaviour {
 		Transform objeto;
 		for(int i = 0; i<transform.childCount; i++) {
 			objeto = transform.GetChild(i);
-			//if (objeto.gameObject.GetComponent<controlObjeto>() != null){
-				//if (objeto.gameObject.GetComponent<controlObjeto>().libre == false)
-					//objeto.position = new Vector3(objeto.position.x + velocidad, objeto.position.y, objeto.position.z);
-			//} else {
 			if (objeto.gameObject.GetComponent<controlObjeto>() == null)
 				objeto.position = new Vector3(objeto.position.x + velocidad, objeto.position.y, objeto.position.z);
-			//}
-			if (estaFueraDeCamara(objeto)){
-				//gnrObjetos.targets.Remove(objeto.gameObject);
+			if (estaFueraDeCamara(objeto))
 				Destroy (objeto.gameObject);
-			}
-				
-				//objeto.position = new Vector3(posIni.x + (tamObjeto.x/2), posIni.y + (tamObjeto.y/2) + 1, 0);;
 		}
 	}
 	
@@ -63,7 +53,6 @@ public class controlObjetos : MonoBehaviour {
 		for(int i = 0; i<5; i++){
 			objeto = dibujarObjeto();
 		}
-		//} while((objeto!=null) && (pos.x > Camera.main.ViewportToWorldPoint(Vector3.zero).x));
 	}
 	
 	private GameObject dibujarObjeto(){
