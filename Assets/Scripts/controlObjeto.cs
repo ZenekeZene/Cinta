@@ -15,22 +15,50 @@ public class controlObjeto : MonoBehaviour {
 	private Vector3 ultimaPosArrastre;
 	private Tween myTween;
 	
-	private BoxCollider2D collider;
-	//private Vector3 s, c;
-	public LayerMask mask;
+	//private Vector3 s, c;	
 	
 	void Start () {
-		collider = GetComponent<BoxCollider2D>();
 		transform.localRotation = Quaternion.AngleAxis((float)UnityEngine.Random.Range(-10, 10), new Vector3(0, 0, 1));
-		if (GetComponent<TapGesture>() != null)
-			GetComponent<TapGesture>().Tapped += manejadorToque;
-		if (GetComponent<PanGesture>() != null){
-			GetComponent<PanGesture>().Panned += manejadorArrastre;
-			GetComponent<PanGesture>().PanCompleted += arrastreCompletoManejador;
-		}
-		transform.DOMoveX(-20, 50, false).SetEase (Ease.Linear).SetLoops(0).OnComplete(completado);
+		asociarEventos ();
+		//aplicarMovimiento ();
 		if (GetComponent<Transformer2D>() != null)
 			GetComponent<Transformer2D>().enabled = false;
+	}
+	
+	private void asociarEventos(){
+		TapGesture tapgest = GetComponent<TapGesture>();
+		if (tapgest != null)
+			tapgest.Tapped += manejadorToque;
+		PanGesture pangest = GetComponent<PanGesture>();
+		if (pangest != null){
+			pangest.Panned += manejadorArrastre;
+			pangest.PanCompleted += arrastreCompletoManejador;
+		}
+	}
+	
+	private void aplicarMovimiento(){
+		float velocidad = recogerVelocidad();
+		float distancia = recogerDistancia();
+		float tiempoRecorriendo = calcularTiempo(distancia, velocidad);
+		transform.DOMoveX(-distancia, tiempoRecorriendo, false).SetEase (Ease.Linear).SetLoops(0).OnComplete(completado);
+	}
+	
+	private float recogerVelocidad(){
+		generarObjetos cntobjetos = transform.parent.GetComponent<generarObjetos>();
+		if (cntobjetos != null)
+			return (cntobjetos.getVelocidad());
+		return 0f;
+	}
+	
+	private float recogerDistancia(){
+		generarObjetos cntobjetos = transform.parent.GetComponent<generarObjetos>();
+		if (cntobjetos != null)
+			return (cntobjetos.getDistancia());
+		return 0f;
+	}
+	
+	private float calcularTiempo(float distancia, float velocidad){
+		return (distancia / velocidad);
 	}
 	
 	private void completado(){

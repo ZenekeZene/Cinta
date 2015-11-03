@@ -8,9 +8,11 @@ public class controlCinta : MonoBehaviour {
 	private Vector3 posIni, pos;
 	private Vector2 tamObjeto;
 	private Transform celdaMasDerecha;
+	private float tamZorro;	
 	
 	void Start () {
 		posIni = Camera.main.ViewportToWorldPoint(Vector3.right);
+		tamZorro = transform.parent.FindChild("Zorro").GetComponent<BoxCollider2D>().bounds.size.x; 
 		pos = dibujarPrimeraCelda();
 		dibujarCeldas(pos);
 		velocidad = recogerVelocidad();
@@ -36,14 +38,15 @@ public class controlCinta : MonoBehaviour {
 		return celda.transform.position;
 	}
 	
-	private void dibujarCeldas(Vector3 pos) {
+	private bool dibujarCeldas(Vector3 pos) {
 		GameObject celda;
 		do {
 			celda = Instantiate(prefab_celda, pos, Quaternion.identity) as GameObject;
 			celda.transform.position = new Vector3(pos.x - (tamObjeto.x), transform.position.y, 0);
 			pos = celda.transform.position;
 			celda.transform.parent = transform;
-		} while(estaFueraDeCamara(celda.transform) == false);//while((pos.x > Camera.main.ViewportToWorldPoint(Vector3.zero).x));
+		} while(!estaFueraDeCamara(celda.transform));//while((pos.x > Camera.main.ViewportToWorldPoint(Vector3.zero).x));
+		return true;
 	}
 	
 	private void moverCeldas() {
@@ -70,6 +73,10 @@ public class controlCinta : MonoBehaviour {
 	private bool estaFueraDeCamara(Transform elemento){
 		float desfX = elemento.renderer.bounds.size.x/2;
 		Vector3 pos = Camera.main.WorldToViewportPoint(new Vector3(elemento.position.x + desfX, elemento.position.y, 0));
-		return (pos.x <= 0.25f);
+		float height = 2*Camera.main.orthographicSize;
+		float width = height*Camera.main.aspect;
+		float desfZorro = (tamZorro)/width;
+		return (pos.x <= (0f + (desfZorro)));
 	}
+	
 }
